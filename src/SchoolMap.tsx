@@ -1,9 +1,4 @@
-import {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
 import {
   LngLatBounds,
   Map as MapLibreMap,
@@ -33,6 +28,33 @@ interface SchoolMapProps {
   onSelect: (school?: School) => void;
 }
 
+type DisplayState = Pick<
+  SchoolMapProps,
+  'activeCode' | 'showNeighborhoods' | 'onlyWithAreas'
+>;
+type Filter = Parameters<MapLibreMap['setFilter']>[1];
+
+const filterBy = (property: string, value: string | boolean) =>
+  ['==', ['get', property], value] as Filter;
+
+function syncDisplay(map: MapLibreMap, state: DisplayState) {
+  if (!map.isStyleLoaded() || !map.getLayer('school-points')) return;
+  const { activeCode = '', showNeighborhoods, onlyWithAreas } = state;
+  map.setFilter('active-school-halo', filterBy('cds_code', activeCode));
+  ['active-area-fill', 'active-area-line'].forEach((layer) =>
+    map.setFilter(layer, filterBy('school_cds_code', activeCode)),
+  );
+  ['neighborhood-fills', 'neighborhood-lines'].forEach((layer) =>
+    map.setLayoutProperty(layer, 'visibility', showNeighborhoods ? 'visible' : 'none'),
+  );
+  const pointFilter = onlyWithAreas
+    ? filterBy('has_attendance_area_name_match', true)
+    : null;
+  ['school-points', 'school-hit-areas'].forEach((layer) =>
+    map.setFilter(layer, pointFilter),
+  );
+}
+
 function areaBounds(area: AttendanceArea) {
   const bounds = new LngLatBounds();
   area.geometry.coordinates
@@ -55,10 +77,8 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
   ) {
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
-    const hoverRef = useRef(onHover);
-    const selectRef = useRef(onSelect);
-    hoverRef.current = onHover;
-    selectRef.current = onSelect;
+    const displayRef = useRef({ activeCode, showNeighborhoods, onlyWithAreas });
+    displayRef.current = { activeCode, showNeighborhoods, onlyWithAreas };
 
     useImperativeHandle(ref, () => ({
       focusSchool(school) {
@@ -169,27 +189,28 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           source: 'schools',
           paint: { 'circle-radius': 14, 'circle-opacity': 0 },
         });
+        syncDisplay(map, displayRef.current);
 
         const schoolFromEvent = (event: MapLayerMouseEvent) =>
           event.features?.[0] as School | undefined;
 
         map.on('mouseenter', 'school-hit-areas', (event) => {
           map.getCanvas().style.cursor = 'pointer';
-          hoverRef.current(schoolFromEvent(event));
+          onHover(schoolFromEvent(event));
         });
         map.on('mousemove', 'school-hit-areas', (event) => {
-          hoverRef.current(schoolFromEvent(event));
+          onHover(schoolFromEvent(event));
         });
         map.on('mouseleave', 'school-hit-areas', () => {
           map.getCanvas().style.cursor = '';
-          hoverRef.current();
+          onHover();
         });
         map.on('click', 'school-hit-areas', (event) => {
-          selectRef.current(schoolFromEvent(event));
+          onSelect(schoolFromEvent(event));
         });
         map.on('click', (event) => {
           if (!map.queryRenderedFeatures(event.point, { layers: ['school-hit-areas'] }).length) {
-            selectRef.current();
+            onSelect();
           }
         });
       });
@@ -198,45 +219,11 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
         map.remove();
         mapRef.current = null;
       };
-    }, [data]);
+    }, [data, onHover, onSelect]);
 
     useEffect(() => {
-      const map = mapRef.current;
-      if (!map?.isStyleLoaded()) return;
-      const filter = ['==', ['get', 'cds_code'], activeCode ?? ''] as Parameters<
-        MapLibreMap['setFilter']
-      >[1];
-      const areaFilter = ['==', ['get', 'school_cds_code'], activeCode ?? ''] as Parameters<
-        MapLibreMap['setFilter']
-      >[1];
-      map.setFilter('active-school-halo', filter);
-      map.setFilter('active-area-fill', areaFilter);
-      map.setFilter('active-area-line', areaFilter);
-    }, [activeCode]);
-
-    useEffect(() => {
-      const map = mapRef.current;
-      if (!map?.isStyleLoaded()) return;
-      const visibility = showNeighborhoods ? 'visible' : 'none';
-      map.setLayoutProperty('neighborhood-fills', 'visibility', visibility);
-      map.setLayoutProperty('neighborhood-lines', 'visibility', visibility);
-    }, [showNeighborhoods]);
-
-    useEffect(() => {
-      const map = mapRef.current;
-      if (!map?.isStyleLoaded()) return;
-      const filter = onlyWithAreas
-        ? ['==', ['get', 'has_attendance_area_name_match'], true]
-        : null;
-      map.setFilter(
-        'school-points',
-        filter as Parameters<MapLibreMap['setFilter']>[1],
-      );
-      map.setFilter(
-        'school-hit-areas',
-        filter as Parameters<MapLibreMap['setFilter']>[1],
-      );
-    }, [onlyWithAreas]);
+      if (mapRef.current) syncDisplay(mapRef.current, displayRef.current);
+    }, [activeCode, showNeighborhoods, onlyWithAreas]);
 
     return <div className="map" ref={containerRef} aria-label="Interactive SFUSD school map" />;
   },

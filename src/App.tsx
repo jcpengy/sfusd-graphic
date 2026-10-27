@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FeatureCollection, MultiPolygon, Point } from 'geojson';
 import { SchoolMap, type SchoolMapHandle } from './SchoolMap';
-import type {
-  AttendanceArea,
-  AttendanceAreaProperties,
-  MapData,
-  NeighborhoodProperties,
-  School,
-  SchoolProperties,
-} from './types';
+import type { AttendanceArea, MapData, School } from './types';
 
 const DATA_URLS = {
   schools: '/data/schools.geojson',
@@ -24,11 +16,9 @@ async function loadJson<T>(url: string): Promise<T> {
 
 async function loadMapData(): Promise<MapData> {
   const [schools, areas, neighborhoods] = await Promise.all([
-    loadJson<FeatureCollection<Point, SchoolProperties>>(DATA_URLS.schools),
-    loadJson<FeatureCollection<MultiPolygon, AttendanceAreaProperties>>(DATA_URLS.areas),
-    loadJson<FeatureCollection<MultiPolygon, NeighborhoodProperties>>(
-      DATA_URLS.neighborhoods,
-    ),
+    loadJson<MapData['schools']>(DATA_URLS.schools),
+    loadJson<MapData['areas']>(DATA_URLS.areas),
+    loadJson<MapData['neighborhoods']>(DATA_URLS.neighborhoods),
   ]);
   return { schools, areas, neighborhoods };
 }
@@ -102,14 +92,6 @@ export default function App() {
     loadMapData().then(setData).catch((reason: unknown) => {
       setError(reason instanceof Error ? reason.message : 'The map data could not be loaded.');
     });
-  }, []);
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSelected(undefined);
-    };
-    window.addEventListener('keydown', onKeyDown);
-    return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
 
   const areasBySchool = useMemo(
