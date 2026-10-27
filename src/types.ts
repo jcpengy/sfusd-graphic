@@ -25,6 +25,11 @@ export type School = Feature<Point, SchoolProperties>;
 export type AttendanceArea = Feature<MultiPolygon, AttendanceAreaProperties>;
 export type Neighborhood = Feature<MultiPolygon, NeighborhoodProperties>;
 
+export interface HomeLocation {
+  coordinates: [number, number];
+  label: string;
+}
+
 export interface MapData {
   schools: FeatureCollection<Point, SchoolProperties>;
   areas: FeatureCollection<MultiPolygon, AttendanceAreaProperties>;

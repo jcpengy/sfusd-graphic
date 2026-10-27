@@ -4,10 +4,12 @@ import {
   Map as MapLibreMap,
   NavigationControl,
   setWorkerUrl,
+  type GeoJSONSource,
   type MapLayerMouseEvent,
 } from 'maplibre-gl';
 import mapWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
-import type { AttendanceArea, MapData, School } from './types';
+import type { FeatureCollection, Point } from 'geojson';
+import type { AttendanceArea, HomeLocation, MapData, School } from './types';
 
 const BASEMAP = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const SF_CENTER: [number, number] = [-122.447, 37.756];
@@ -24,6 +26,7 @@ interface SchoolMapProps {
   activeCode?: string;
   showNeighborhoods: boolean;
   onlyWithAreas: boolean;
+  home?: HomeLocation;
   onHover: (school?: School) => void;
   onSelect: (school?: School) => void;
 }
@@ -63,6 +66,15 @@ function areaBounds(area: AttendanceArea) {
   return bounds;
 }
 
+function homeData(home?: HomeLocation): FeatureCollection<Point> {
+  return {
+    type: 'FeatureCollection',
+    features: home
+      ? [{ type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: home.coordinates } }]
+      : [],
+  };
+}
+
 export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
   function SchoolMap(
     {
@@ -70,6 +82,7 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
       activeCode,
       showNeighborhoods,
       onlyWithAreas,
+      home,
       onHover,
       onSelect,
     },
@@ -78,7 +91,9 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<MapLibreMap | null>(null);
     const displayRef = useRef({ activeCode, showNeighborhoods, onlyWithAreas });
+    const homeRef = useRef(home);
     displayRef.current = { activeCode, showNeighborhoods, onlyWithAreas };
+    homeRef.current = home;
 
     useImperativeHandle(ref, () => ({
       focusSchool(school) {
@@ -121,6 +136,7 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
         map.addSource('neighborhoods', { type: 'geojson', data: data.neighborhoods });
         map.addSource('attendance-areas', { type: 'geojson', data: data.areas });
         map.addSource('schools', { type: 'geojson', data: data.schools });
+        map.addSource('home', { type: 'geojson', data: homeData(homeRef.current) });
 
         map.addLayer({
           id: 'neighborhood-fills',
@@ -189,7 +205,21 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           source: 'schools',
           paint: { 'circle-radius': 14, 'circle-opacity': 0 },
         });
+        map.addLayer({
+          id: 'home-point',
+          type: 'circle',
+          source: 'home',
+          paint: {
+            'circle-radius': 8,
+            'circle-color': '#f6e652',
+            'circle-stroke-color': '#09090b',
+            'circle-stroke-width': 3,
+          },
+        });
         syncDisplay(map, displayRef.current);
+        if (homeRef.current) {
+          map.flyTo({ center: homeRef.current.coordinates, zoom: 13.5 });
+        }
 
         const schoolFromEvent = (event: MapLayerMouseEvent) =>
           event.features?.[0] as School | undefined;
@@ -224,6 +254,15 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
     useEffect(() => {
       if (mapRef.current) syncDisplay(mapRef.current, displayRef.current);
     }, [activeCode, showNeighborhoods, onlyWithAreas]);
+
+    useEffect(() => {
+      const map = mapRef.current;
+      if (!map) return;
+      const source = map.getSource('home') as GeoJSONSource | undefined;
+      if (!source) return;
+      source.setData(homeData(home));
+      if (home) map.flyTo({ center: home.coordinates, zoom: 13.5, duration: 900 });
+    }, [home]);
 
     return <div className="map" ref={containerRef} aria-label="Interactive SFUSD school map" />;
   },
