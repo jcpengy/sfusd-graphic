@@ -127,7 +127,7 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           type: 'fill',
           source: 'neighborhoods',
           layout: { visibility: 'none' },
-          paint: { 'fill-color': '#dce4e2', 'fill-opacity': 0.18 },
+          paint: { 'fill-color': '#e4e4e7', 'fill-opacity': 0.2 },
         });
         map.addLayer({
           id: 'neighborhood-lines',
@@ -135,7 +135,7 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           source: 'neighborhoods',
           layout: { visibility: 'none' },
           paint: {
-            'line-color': '#687b78',
+            'line-color': '#78716c',
             'line-opacity': 0.7,
             'line-width': 1,
             'line-dasharray': [3, 2],
@@ -146,14 +146,14 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           type: 'fill',
           source: 'attendance-areas',
           filter: ['==', ['get', 'school_cds_code'], ''],
-          paint: { 'fill-color': '#f8bd61', 'fill-opacity': 0.3 },
+          paint: { 'fill-color': '#f6e652', 'fill-opacity': 0.38 },
         });
         map.addLayer({
           id: 'active-area-line',
           type: 'line',
           source: 'attendance-areas',
           filter: ['==', ['get', 'school_cds_code'], ''],
-          paint: { 'line-color': '#a84f22', 'line-width': 2.5 },
+          paint: { 'line-color': '#09090b', 'line-width': 2.5 },
         });
         map.addLayer({
           id: 'active-school-halo',
@@ -162,8 +162,8 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
           filter: ['==', ['get', 'cds_code'], ''],
           paint: {
             'circle-radius': 11,
-            'circle-color': '#fffdf8',
-            'circle-stroke-color': '#a84f22',
+            'circle-color': '#ffffff',
+            'circle-stroke-color': '#09090b',
             'circle-stroke-width': 3,
           },
         });
@@ -176,10 +176,10 @@ export const SchoolMap = forwardRef<SchoolMapHandle, SchoolMapProps>(
             'circle-color': [
               'case',
               ['get', 'has_attendance_area_name_match'],
-              '#174f63',
-              '#fffdf8',
+              '#1a6ef4',
+              '#ffffff',
             ],
-            'circle-stroke-color': '#174f63',
+            'circle-stroke-color': '#09090b',
             'circle-stroke-width': 2,
           },
         });
