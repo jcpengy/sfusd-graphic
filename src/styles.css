@@ -1,0 +1,169 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,600&display=swap');
+
+:root {
+  color: #17312f;
+  background: #f4f0e8;
+  font-family: 'DM Sans', sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; min-width: 320px; }
+button, input { font: inherit; }
+button { color: inherit; }
+
+.app-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, 390px) 1fr;
+  min-height: 100vh;
+  background: #f4f0e8;
+}
+
+.sidebar {
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-height: 100vh;
+  padding: 34px 32px 26px;
+  overflow-y: auto;
+  border-right: 1px solid #d5d4ca;
+  box-shadow: 8px 0 30px rgb(38 55 52 / 7%);
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #a84f22;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+h1, h2, p { margin-top: 0; }
+h1 {
+  max-width: 320px;
+  margin-bottom: 12px;
+  font: 600 2.35rem/0.98 'Newsreader', serif;
+  letter-spacing: -0.035em;
+}
+.intro { margin-bottom: 0; color: #586764; font-size: 0.94rem; line-height: 1.55; }
+
+.search-wrap { position: relative; }
+.search-wrap label, .controls::before {
+  display: block;
+  margin-bottom: 7px;
+  color: #52615e;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.search-wrap input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #bdc7c3;
+  border-radius: 9px;
+  outline: none;
+  color: #17312f;
+  background: #fffdf8;
+}
+.search-wrap input:focus { border-color: #174f63; box-shadow: 0 0 0 3px rgb(23 79 99 / 12%); }
+.search-results {
+  position: absolute;
+  z-index: 5;
+  top: calc(100% + 6px);
+  width: 100%;
+  margin: 0;
+  padding: 5px;
+  list-style: none;
+  border: 1px solid #d3d9d6;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgb(23 49 47 / 16%);
+}
+.search-results button {
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 6px;
+  text-align: left;
+  background: transparent;
+  cursor: pointer;
+}
+.search-results button:hover, .search-results button:focus { background: #eef3f1; outline: none; }
+.search-results strong, .search-results span { display: block; }
+.search-results strong { font-size: 0.85rem; }
+.search-results span { margin-top: 2px; color: #6b7774; font-size: 0.73rem; }
+
+.controls { display: grid; gap: 9px; }
+.controls::before { content: 'Display'; }
+.controls label { display: flex; align-items: center; gap: 9px; font-size: 0.84rem; cursor: pointer; }
+.controls input { width: 16px; height: 16px; accent-color: #174f63; }
+
+.legend { display: grid; gap: 8px; padding: 13px 0; border-block: 1px solid #d9d8cf; }
+.legend span { display: flex; align-items: center; gap: 9px; color: #53625f; font-size: 0.75rem; }
+.legend-dot { width: 11px; height: 11px; border: 2px solid #174f63; border-radius: 50%; }
+.legend-dot.filled { background: #174f63; }
+.legend-dot.hollow { background: #fffdf8; }
+.legend-area { width: 17px; height: 12px; border: 2px solid #a84f22; background: rgb(248 189 97 / 35%); }
+
+.school-card { padding: 18px; border: 1px solid #d5d7cf; border-radius: 12px; background: #fffdf8; box-shadow: 0 8px 24px rgb(23 49 47 / 6%); }
+.card-heading { display: flex; align-items: center; justify-content: space-between; }
+.card-label { color: #a84f22; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.icon-button { padding: 0 4px; border: 0; color: #60706d; background: none; font-size: 1.35rem; cursor: pointer; }
+.school-card h2 { margin: 6px 0; font: 600 1.45rem/1.05 'Newsreader', serif; }
+.school-meta { margin-bottom: 15px; color: #65726f; font-size: 0.78rem; line-height: 1.45; }
+.area-status { display: flex; gap: 10px; padding-top: 13px; border-top: 1px solid #e2e1d9; }
+.area-status strong, .area-status span { display: block; }
+.area-status strong { font-size: 0.8rem; }
+.area-status div span { margin-top: 3px; color: #6d7976; font-size: 0.7rem; line-height: 1.35; }
+.status-dot, .status-ring { flex: 0 0 auto; width: 10px; height: 10px; margin-top: 3px; border: 2px solid #a84f22; border-radius: 50%; }
+.status-dot { background: #f8bd61; }
+.status-ring { border-color: #174f63; }
+.secondary-button { margin-top: 14px; padding: 8px 11px; border: 1px solid #9baaa6; border-radius: 7px; background: transparent; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+.secondary-button:hover { background: #edf1ef; }
+
+.empty-card { display: flex; align-items: flex-start; gap: 10px; color: #6a7774; font-size: 0.82rem; line-height: 1.45; }
+.empty-card p { margin: 0; }
+.pointer-icon { color: #a84f22; font-size: 1.25rem; }
+
+footer { margin-top: auto; padding-top: 4px; color: #6d7775; font-size: 0.68rem; line-height: 1.45; }
+footer strong { color: #465754; font-size: 0.7rem; }
+footer p { margin: 5px 0 0; }
+
+.map-panel { position: relative; min-width: 0; min-height: 100vh; }
+.map { position: absolute; inset: 0; }
+.maplibregl-ctrl-attrib { font-size: 10px; }
+.maplibregl-ctrl-group { border-radius: 8px; box-shadow: 0 2px 10px rgb(25 49 46 / 15%); }
+.reset-button, .map-instruction {
+  position: absolute;
+  z-index: 1;
+  border: 1px solid #c8ceca;
+  border-radius: 8px;
+  background: rgb(255 253 248 / 94%);
+  box-shadow: 0 3px 12px rgb(23 49 47 / 10%);
+}
+.reset-button { top: 12px; left: 12px; padding: 9px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; }
+.map-instruction { right: 12px; bottom: 26px; padding: 7px 10px; color: #586764; font-size: 0.68rem; }
+
+.centered-message { display: grid; min-height: 100vh; place-content: center; justify-items: center; background: #f4f0e8; }
+.centered-message h1 { margin-bottom: 8px; }
+.loader { width: 28px; height: 28px; border: 3px solid #cad2cf; border-top-color: #174f63; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 760px) {
+  .app-shell { display: flex; min-height: 100dvh; flex-direction: column; }
+  .sidebar { max-height: none; padding: 24px 20px 18px; overflow: visible; border-right: 0; box-shadow: 0 6px 22px rgb(38 55 52 / 8%); }
+  h1 { font-size: 2rem; }
+  .intro, .legend, .empty-card, footer { display: none; }
+  .controls { grid-template-columns: 1fr; }
+  .school-card { padding: 14px; }
+  .map-panel { min-height: 58dvh; flex: 1; }
+  .map-instruction { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; }
+}
